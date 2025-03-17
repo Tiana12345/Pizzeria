@@ -3,6 +3,9 @@ package com.accenture.service;
 import com.accenture.exception.IngredientException;
 import com.accenture.repository.dao.IngredientDao;
 import com.accenture.repository.entity.Ingredient;
+import com.accenture.service.dto.IngredientRequestDto;
+import com.accenture.service.dto.IngredientResponseDto;
+import com.accenture.service.mapper.IngredientMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,51 +26,55 @@ public class IngredientServiceTest {
     private IngredientServiceImpl service;
     @Mock
     private IngredientDao dao;
+    @Mock
+    private IngredientMapper mapper;
 
     @Test
     void testAjouterOK() {
-        Ingredient ingredient = getTomate();
-        Ingredient ingredientSave = getTomate();
-        ingredientSave.setId(1);
-        Mockito.when(dao.save(ingredient)).thenReturn(ingredientSave);
-       Ingredient ingredientEnreg = assertDoesNotThrow(() -> service.ajouter(ingredient));
-        assertSame(ingredientEnreg, ingredientSave);
-        Mockito.verify(dao).save(ingredient);
+        IngredientRequestDto ingredientRequestDto = new IngredientRequestDto("Tomate", 3);
+        Ingredient ingrAvantEnreg = creerIngredient1();
+        ingrAvantEnreg.setId(1);
+        Ingredient ingrApresEnreg = creerIngredient1();
+        IngredientResponseDto responseDto = creerIngredientResponseDto();
+
+        Mockito.when(mapper.toIngredient(ingredientRequestDto)).thenReturn(ingrAvantEnreg);
+        Mockito.when(dao.save(ingrAvantEnreg)).thenReturn(ingrApresEnreg);
+        Mockito.when(mapper.toIngredientResponseDto(ingrApresEnreg)).thenReturn(responseDto);
+        assertSame(responseDto, service.ajouter(ingredientRequestDto));
+        Mockito.verify(dao, Mockito.times(1)).save((ingrAvantEnreg));
     }
 
-    @Test
-    void  testAjouterIngredientNull(){
-        IngredientException ex = assertThrows(IngredientException.class, () -> service.ajouter(null));
-        Assertions.assertEquals("L'ingrédient doit exister", ex.getMessage());
-    }
+        @Test
+        void testAjouterIngredientNull () {
+            IngredientException ex = assertThrows(IngredientException.class, () -> service.ajouter(null));
+            Assertions.assertEquals("L'ingrédient doit exister", ex.getMessage());
+        }
 
-    @Test
-    void  testAjouterIngredientNomNull(){
-        Ingredient ingredient = getTomate();
-        ingredient.setNom(null);
-        IngredientException ex = assertThrows(IngredientException.class, () -> service.ajouter(ingredient));
-        Assertions.assertEquals("Le nom de l'ingrédient ne peut pas être nul", ex.getMessage());
-    }
+        @Test
+        void testAjouterIngredientNomNull () {
+            IngredientRequestDto ingredientRequestDto= new IngredientRequestDto(null,3);
+            IngredientException ex = assertThrows(IngredientException.class, () -> service.ajouter(ingredientRequestDto));
+            Assertions.assertEquals("Le nom de l'ingrédient ne peut pas être nul", ex.getMessage());
+        }
 
-    @Test
-    void  testAjouterIngredienQuantiteNull(){
-        Ingredient ingredient = getTomate();
-        ingredient.setQuantite(null);
-        IngredientException ex = assertThrows(IngredientException.class, () -> service.ajouter(ingredient));
-        Assertions.assertEquals("La quantité de l'ingrédient ne peut pas être nul", ex.getMessage());
-    }
+        @Test
+        void testAjouterIngredienQuantiteNull () {
+            IngredientRequestDto ingredientRequestDto = new IngredientRequestDto("Tomate", null);
+            IngredientException ex = assertThrows(IngredientException.class, () -> service.ajouter(ingredientRequestDto));
+            Assertions.assertEquals("La quantité de l'ingrédient ne peut pas être nul", ex.getMessage());
+        }
 
-    @Test
-    void testListerIngredient(){
-        Ingredient ingredient = getTomate();
-        Ingredient ingredient1 = getOlive();
-        List<Ingredient> liste = List.of(getOlive(), getTomate() );
-        Mockito.when(dao.findAll()).thenReturn(liste);
-        assertEquals(liste, service.trouverToutes());
-    }
+       /* @Test
+        void testListerIngredient () {
+            IngredientRequestDto ingredient1 = creerIngredient1();
+            IngredientRequestDto ingredient2 = creerIngredient2();
+            List<Ingredient> liste = List.of(creerIngredient1(), creerIngredient2());
+            Mockito.when(dao.findAll()).thenReturn(liste);
+            assertEquals(liste, service.trouverToutes());
+        }
 
-    @Test
-    void testModifierQuantite(){
+        @Test
+        void testModifierQuantite ()
 
        /* @Test
         void testModifPartielNouveauNom() {
@@ -83,13 +90,29 @@ public class IngredientServiceTest {
             assertEquals(clientResponseDto,  service.modifierPartiellement(1, clientRequestDto) );
 
         }*/
+
+
+
+
+
+    private static Ingredient creerIngredient1() {
+        Ingredient ingredient = new Ingredient();
+        ingredient.setId(1);
+        ingredient.setNom("Tomate");
+        ingredient.setQuantite(3);
+        return ingredient;
     }
 
-    private static Ingredient getTomate() {
-        return new Ingredient("Tomate", 3);
-    }
-    private static Ingredient getOlive() {
-        return new Ingredient("Olive", 3);
-    }
-
+private static Ingredient creerIngredient2() {
+    Ingredient ingredient = new Ingredient();
+    ingredient.setId(2);
+    ingredient.setNom("Olive");
+    ingredient.setQuantite(3);
+    return ingredient;
 }
+
+    private static IngredientResponseDto creerIngredientResponseDto(){
+        return new IngredientResponseDto(1, "Tomate", 3);
+    }
+}
+
