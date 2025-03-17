@@ -7,8 +7,7 @@ import java.util.List;
 
 public record PizzaResponseDto(
         String nom,
-        List<Ingredient> ingredients,
         Taille taille,
-        Double tarif
-) {
+        Double tarif,
+        List<Ingredient> ingredients) {
 }

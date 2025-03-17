@@ -2,14 +2,21 @@ package com.accenture.service.dto;
 
 import com.accenture.model.Taille;
 import com.accenture.repository.entity.Ingredient;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
 public record PizzaRequestDto(
-        int id,
+        @NotBlank
         String nom,
-        List<Ingredient> ingredients,
+        @NotNull
         Taille taille,
-        Double tarif
+        @NotNull
+        Double tarif,
+        @NotNull
+        List<Ingredient> ingredients
+
+
 ) {
 }
