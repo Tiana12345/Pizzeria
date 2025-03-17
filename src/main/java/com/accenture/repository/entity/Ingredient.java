@@ -14,12 +14,15 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Ingredients {
+public class Ingredient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @NotBlank
     private String nom;
-    @NotNull
     private Integer quantite;
+
+    public Ingredient(String nom, Integer quantite) {
+        this.nom = nom;
+        this.quantite = quantite;
+    }
 }
